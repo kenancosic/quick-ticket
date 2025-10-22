@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@prisma/config": "^6.18.0",
     "@sentry/nextjs": "^10.21.0",
     "next": "16.0.0",
     "react": "19.2.0",
