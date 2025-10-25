@@ -13,6 +13,12 @@ export async function createTicket(
     const description = formData.get("description") as string;
     const priority = formData.get("priority") as string;
 
+    const user = {
+      id: 1,
+      name: "John Doe",
+      email: "john.doe@example.com"
+    }
+
     if (!subject || !description || !priority) {
       logEvent(
         "Validation Error: missing ticket fields",
@@ -29,6 +35,11 @@ export async function createTicket(
             subject,
             description,
             priority,
+            user: {
+                connect: {
+                    id: user.id.toString()
+                }
+            }
         }
     });
     
