@@ -1,10 +1,12 @@
 import Link from 'next/link'
 import React from 'react'
+import { getCurrentUser } from '@/lib/current-user';
+import LogoutButton from './LogoutButton';
 
-const Navbar = () => {
+const Navbar = async () => {
 
-  // const user = getCurrentUser();
-  const user = null;
+  const user = await getCurrentUser();
+  
   return (
      <nav className='bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center'>
       <div>
@@ -27,7 +29,7 @@ const Navbar = () => {
             >
               My Tickets
             </Link>
-            {/* <LogoutButton /> */}
+            <LogoutButton />
           </>
         ) : (
           <>
