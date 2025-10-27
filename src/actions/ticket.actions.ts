@@ -143,3 +143,72 @@ export async function getTicketById(id: string) {
     return null;
   }
 }
+
+//Close ticket
+export async function closeTicket(prevState: { success: boolean; message: string }, formData: FormData): Promise<{ success: boolean; message: string }> {
+  try {
+    const ticketId = Number(formData.get("ticketId"));
+    
+    if(!ticketId){
+      logEvent(
+        "Validation Error: missing ticket id",
+        "ticket",
+        {ticketId},
+        "warning"
+      );
+      return { success: false, message: "Ticket id is required" };
+    }
+    const user = await getCurrentUser();
+
+    if(!user){
+      logEvent(
+        "Unauthorized close of ticket attempt",
+        "ticket",
+        {ticketId},
+        "warning"
+      );
+
+      return {success: false, message:"Unauthorized"}
+    }
+
+    const ticket = await prisma.ticket.findUnique({
+      where: {
+        id: ticketId
+      }
+    });
+
+    if(!ticket || ticket.userId !== user.id){
+      logEvent(
+        `Unauthorized close of ticket attempt: ${ticketId}`,
+        "ticket",
+        {ticketId},
+        "warning"
+      );
+      return {success: false, message:"Unauthorized"}
+    }
+
+    await prisma.ticket.update({
+      where: {
+        id: ticketId
+      },
+      data: {
+        status: "closed"
+      }
+    });
+
+    revalidatePath("/tickets");
+    revalidatePath(`/tickets/${ticketId}`);
+    
+    return {success: true, message:"Ticket closed successfully"};
+    
+  } catch (error) {
+    logEvent(
+      "An error occured while closing ticket",
+      "ticket",
+      {},
+      "error",
+      error
+    );
+    return { success: false, message: "Failed to close ticket" };
+  }
+}
